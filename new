@@ -82,4 +82,12 @@ public static void createModelDataSource(List<Resource> cfModels, ResourceResolv
 			}
 		}
 	}
+
+
+public static Resource createResource(@NotNull ResourceResolver resolver, @NotNull String textValue, @NotNull String valueValue) {
+        ValueMap properties = new ValueMapDecorator(new HashMap<>());
+        properties.put("text", textValue);
+        properties.put("value", valueValue);
+        return new ValueMapResource(resolver, new ResourceMetadata(), RESOURCE_TYPE_NON_EXISTING, properties);
+    }
 }

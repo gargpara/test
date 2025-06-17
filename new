@@ -59,5 +59,27 @@ public class CFModelDataSourceImpl implements CFModelDataSource{
          }
     }
     
-
+public static void createModelDataSource(List<Resource> cfModels, ResourceResolver resourceResolver,
+			SearchResult searchResult) {
+		ResourceResolver leakingResourceResolver = null;
+		try {
+			for (Iterator<Resource> resourceIterator = searchResult.getResources(); resourceIterator.hasNext();) {
+				Resource resource = resourceIterator.next();
+				if (leakingResourceResolver == null) {
+					// Get a reference to query builder's leaking resource resolver
+					leakingResourceResolver = resource.getResourceResolver();
+				}
+				ValueMap modelValueMap = resource.getValueMap();
+				String modelTitle = modelValueMap.get(JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_TITLE,
+						resource.getName());
+				String modelPath = resource.getPath();
+				Resource syntheticResource = ContentFragmentUtils.createResource(resourceResolver, modelTitle, modelPath);
+				cfModels.add(syntheticResource);
+			}
+		} finally {
+			if (leakingResourceResolver != null) {
+				leakingResourceResolver.close();
+			}
+		}
+	}
 }
